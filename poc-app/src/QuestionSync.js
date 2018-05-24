@@ -1,4 +1,6 @@
 import React, { Component } from "react";
+import { connect } from 'react-redux';      // glue between redux and reacts
+import { bindActionCreators } from 'redux';
 
 // Shortid - is a package that generates ids.
 // When creating Components within react, you must create unique ids to each
@@ -6,57 +8,31 @@ import React, { Component } from "react";
 // in the following tutorial - https://www.slightedgecoder.com/2017/12/03/loading-react-components-dynamically-demand/
 import shortid from "shortid";
 
-// Traditional way to define components before react component lifecycle begins.
-// import QuestionX from './questions/QuestionX.js';
-// import QuestionY from './questions/QuestionY.js';
-
-var data = [
-  {
-    id: "UTI1",
-    title: "Question X",
-    menuTitle: "Question X Menu",
-    questionText: "Question Text X",
-    valid: false,
-    type: "QuestionX",
-    loanDataLocation: 'where in store to place the data',
-    analytics: {
-      title: "Question X"
-    },
-  },
-  {
-    id: 2,
-    title: "Question Y",
-    menuTitle: "Question Y Menu",
-    questionText: "Question Text Y",
-    valid: false,
-    type: "QuestionY",
-    loanDataLocation: 'where in store to place the data',
-    analytics: {
-      title: "Question Y"
-    }
-  }
-];
-
-const conditionX = false;
-
-function pocLoadQuestionBasedOnRules (){
-  if (conditionX) return data[0];
-  return [data[1]];
-}
-
+// A component to dynamically load components into the view.
 class QuestionSync extends Component {
   constructor(props) {
+
     super(props);
 
+    // The view components are added here
     this.state = {
       components: []
     };
 
   }
 
-  addComponent = function (type) {
-    console.log(`Loading ${type} component...`);
+  // A POC method to illustrate how we can load questions
+  // into a page dynamically, based on business logic during the applications lifecycle.
+  // Here we use a boolean, we can be manually changed to see two different views load.
+  pocLoadQuestionBasedOnRules (){
+    const conditionX = true;
+    if (conditionX) return [this.props.questions[0], this.props.questions[1], this.props.questions[0]];
+    return [this.props.questions[1], this.props.questions[0]];
+  }
 
+  // This method adds components to the state components array
+  // to to be rendered to the view.
+  addComponent = function (type) {
     import(`./${type}.js`)
       .then(component =>
         this.setState({
@@ -68,26 +44,31 @@ class QuestionSync extends Component {
       });
   };
 
-  async componentDidMount() {
-
-    var _this = this;
-    var questions = pocLoadQuestionBasedOnRules();
-
+  componentDidMount() {
+    // Keeps scope within map function.
+    var _thisScope = this;
+    // Gets questions based on POC rules
+    var questions = this.pocLoadQuestionBasedOnRules();
+    // loads the array of components
     questions.map(function (question) {
-      _this.addComponent(question.type);
+      _thisScope.addComponent(question.type);
     });
   }
 
   render() {
     const { components } = this.state;
     if (components.length === 0) return <div>Loading...</div>;
-
     const componentsElements = components.map(Component => (
       <Component key={shortid.generate()} />
     ));
-
     return <div>{componentsElements}</div>;
   }
 }
 
-export default QuestionSync;
+function mapStateToProps(state) {
+  return {
+    questions: state.questions
+  }
+}
+
+export default connect(mapStateToProps)(QuestionSync);

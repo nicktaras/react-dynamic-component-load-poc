@@ -1,14 +1,18 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import QuestionSync from './QuestionSync';
-import './App.css';
+
+import { Provider } from 'react-redux';
+import { createStore, applyMiddleware } from 'redux';
+import reducers from './reducers';
+
+const createStoreWithMiddleware = applyMiddleware()(createStore);
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <Provider store={createStoreWithMiddleware(reducers)}>
         <QuestionSync></QuestionSync>
-      </div>
+      </Provider>
     );
   }
 }
