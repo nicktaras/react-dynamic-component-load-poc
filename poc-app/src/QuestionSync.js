@@ -6,7 +6,7 @@ import React, { Component } from "react";
 // in the following tutorial - https://www.slightedgecoder.com/2017/12/03/loading-react-components-dynamically-demand/
 import shortid from "shortid";
 
-// Define Components Before React Component lifecycle begins.
+// Traditional way to define components before react component lifecycle begins.
 // import QuestionX from './questions/QuestionX.js';
 // import QuestionY from './questions/QuestionY.js';
 
@@ -37,6 +37,13 @@ var data = [
   }
 ];
 
+const conditionX = false;
+
+function pocLoadQuestionBasedOnRules (){
+  if (conditionX) return data[0];
+  return [data[1]];
+}
+
 class QuestionSync extends Component {
   constructor(props) {
     super(props);
@@ -45,7 +52,6 @@ class QuestionSync extends Component {
       components: []
     };
 
-    this.props = data;
   }
 
   addComponent = function (type) {
@@ -63,8 +69,11 @@ class QuestionSync extends Component {
   };
 
   async componentDidMount() {
+
     var _this = this;
-    data.map(function (question) {
+    var questions = pocLoadQuestionBasedOnRules();
+
+    questions.map(function (question) {
       _this.addComponent(question.type);
     });
   }
