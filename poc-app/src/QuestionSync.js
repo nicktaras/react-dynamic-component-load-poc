@@ -1,11 +1,12 @@
 import React, { Component } from "react";
 import { connect } from 'react-redux';             // glue between redux and reacts
 import { bindActionCreators } from 'redux';        // bind bindActionCreators so we can use pub / sub of redux
-// import { Route, Link } from "react-router-dom";
-// import history from './history';
+import history from './history';
 
 // Load methods from Actions.
 import { getQuestions, getNextQuestionPage } from './actions/index';
+
+// import { Route, Link } from "react-router-dom";
 
 // Shortid - is a package that generates ids.
 // When creating Components within react, you must create unique ids to each
@@ -19,14 +20,13 @@ class QuestionSync extends Component {
 
     super(props);
 
+    // Check if this is best practice - should this be resolved by the core of the app.
     let questionsStore = this.props.getQuestions().payLoad;
 
     this.state = {
       components: [],           // The view components are added here
       questions: questionsStore // Payload of Questions from Store. TODO: Look to make this Async, in case we want to load this via CSV to JSON.
     };
-
-    // mapStateToProps();
 
   }
 
@@ -72,14 +72,18 @@ class QuestionSync extends Component {
     });
   }
 
+  // navigate with router to the next page.
+  // Changes question, but page must re-render.
   nextPage(scope){
-    debugger;
-    // this.props.getNextQuestionPage
-  }
 
-  // SET_QUESTION async action reduced here.
-  // setNextQuestion(event) {}
-  // history.push('/question/2'); - navigate with router.
+    var _thisScope = scope.props;
+
+    var nextQuestion = scope.getNextQuestionPage().payLoad;
+
+    // TODO Check if this is the right method to change a page and get updates etc.
+    history.push('/question/' + nextQuestion);
+
+  }
 
   render() {
     const { components } = this.state;
@@ -90,13 +94,17 @@ class QuestionSync extends Component {
     return (
       <div>
         <div>{componentsElements}</div>
-          <button onClick={this.nextPage.bind((this))}>
+          <button onClick={(evt) => this.nextPage(this, evt)}>
             Next Page
           </button>
       </div>
     );
   }
 }
+
+history.listen(function(location) {
+  // TODO - look to see if this is the best way to re-render components when the route is changed.
+})
 
 // Dispatch Events
 function mapDispatchToProps(dispatch) {
