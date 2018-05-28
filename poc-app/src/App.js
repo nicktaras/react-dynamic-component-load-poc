@@ -1,14 +1,26 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
+import { Provider } from 'react-redux';
+import reducers from './reducers';
+import { BrowserRouter as Router, Route } from 'react-router-dom';
+import history from './history';
+import { createStore, applyMiddleware } from 'redux';
+import { Link } from 'react-router-dom';
+
 import QuestionSync from './QuestionSync';
-import './App.css';
+
+const createStoreWithMiddleware = applyMiddleware()(createStore);
 
 class App extends Component {
   render() {
     return (
-      <div className="App">
-        <QuestionSync></QuestionSync>
-      </div>
+      <Router>
+        <Provider store={createStoreWithMiddleware(reducers)}>
+        <div>
+          <Route exact path="/question/:number" component={QuestionSync} history={history} />
+          <Link to="/question/1">Test</Link>
+        </div>
+        </Provider>
+      </Router>
     );
   }
 }
