@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import { connect } from 'react-redux';             // glue between redux and reacts
 import { bindActionCreators } from 'redux';        // bind bindActionCreators so we can use pub / sub of redux
 import history from './history';
+import { Link } from 'react-router-dom';
 
 // Load methods from Actions.
-import { getQuestions, getNextQuestionPage } from './actions/index';
-
-// import { Route, Link } from "react-router-dom";
+import { getQuestions, getNextQuestionPage, getPrevQuestionPage } from './actions/index';
 
 // Shortid - is a package that generates ids.
 // When creating Components within react, you must create unique ids to each
@@ -24,25 +23,37 @@ class QuestionSync extends Component {
     let questionsStore = this.props.getQuestions().payLoad;
 
     this.state = {
-      components: [],           // The view components are added here
-      questions: questionsStore // Payload of Questions from Store. TODO: Look to make this Async, in case we want to load this via CSV to JSON.
+      components: [],                 // The view components are added here
+      questionsStore: questionsStore, // Payload of Questions from Store. TODO: Look to make this Async, in case we want to load this via CSV to JSON.
+      nextQuestion: undefined,        // next question id POC
+      prevQuestion: undefined,        // prev question id POC
+      questionIndex: Number(this.props.match.params.number) // Current question index
     };
+
+    var questionsData = this.getQuestionsArray(this.state.questionIndex);
+    this.setQuestionComponents(questionsData);
 
   }
 
   // A POC method to illustrate how we can load questions
   // into a page dynamically, based on business logic during the applications lifecycle.
   // Here we use a boolean, we can be manually changed to see two different views load.
-  pocLoadQuestionBasedOnRules (){
-
-    var questions = this.state.questions;
-    var questionNumber = Number(this.props.match.params.number);
-
-    if (questionNumber === 1) {
-      return [questions[0], questions[1], questions[0], questions[1]];
+  getQuestionsArray (index){
+    var questions = this.state.questionsStore;
+    if (index === 1) {
+      return [questions[0]];
     }
-
     return [questions[1]];
+  }
+
+  // Generate the question components via map loop
+  setQuestionComponents (questions){
+    // Keeps scope within map function.
+    var _thisScope = this;
+    // loads the array of components
+    questions.map(function (question) {
+      return _thisScope.addComponent('questions/' + question.type);
+    });
   }
 
   // This method adds components to the state components array
@@ -59,30 +70,32 @@ class QuestionSync extends Component {
       });
   };
 
-  componentDidMount() {
-    // Keeps scope within map function.
-    var _thisScope = this;
-
-    // Gets questions based on POC rules
-    var questions = this.pocLoadQuestionBasedOnRules(questions);
-
-    // loads the array of components
-    questions.map(function (question) {
-      return _thisScope.addComponent(question.type);
-    });
-  }
-
   // navigate with router to the next page.
   // Changes question, but page must re-render.
-  nextPage(scope){
+  nextPage(scope, direction){
+    let nextQuestion;
+    // Get question from Redux / Business logic.
+    if(direction === 1) {
+      nextQuestion = this.props.getNextQuestionPage().payLoad;
+    } else {
+      nextQuestion = this.props.getPrevQuestionPage().payLoad;
+    }
+    // TODO - tidy / rework.
+    this.state.components = [];
+    this.setQuestionComponents(this.getQuestionsArray(nextQuestion));
+    this.setState({ components: this.state.components, questionIndex: nextQuestion });
+  }
 
-    var _thisScope = scope.props;
+  // componentDidMount()
+  // invoked immediately after a component is mounted.
+  // Initialization that requires DOM nodes should go here.
+  // If you need to load data from a remote endpoint, this is a good place to instantiate the network request.
+  componentDidMount() {}
 
-    var nextQuestion = scope.getNextQuestionPage().payLoad;
-
-    // TODO Check if this is the right method to change a page and get updates etc.
-    history.push('/question/' + nextQuestion);
-
+  // componentDidUpdate()
+  // invoked immediately after updating occurs. This method is not called for the initial render.
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    history.push('/question/' + this.state.questionIndex); // Method to navigate to next view.
   }
 
   render() {
@@ -94,30 +107,33 @@ class QuestionSync extends Component {
     return (
       <div>
         <div>{componentsElements}</div>
-          <button onClick={(evt) => this.nextPage(this, evt)}>
-            Next Page
-          </button>
+        <button onClick={(evt) => this.nextPage(this, 1)}>NEXT</button>
+        <button onClick={(evt) => this.nextPage(this, -1)}>PREV</button>
       </div>
     );
   }
 }
 
-history.listen(function(location) {
-  // TODO - look to see if this is the best way to re-render components when the route is changed.
-})
+// Another way to navigate with router.
+// <Link to="/question/2">Next</Link>
+// <Link to="/question/1">Back</Link>
 
-// Dispatch Events
+// Map Dispatch Events to Props.
+// So we can call them like so: this.props.getQuestions();
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getQuestions, getNextQuestionPage }, dispatch);
+  return bindActionCreators({
+    getQuestions,
+    getNextQuestionPage,
+    getPrevQuestionPage
+  }, dispatch);
 }
 
-// Subscribe Events
-// TODO Confirm why we do this, when the action creators don't re-apply the data back to these values.
-// FIXME Its seems as though the Redux Cycle is not working as it should.
+// Map the current State the props
 function mapStateToProps(state) {
   return {
-    nextQuestion: state.questionId,
-    questions: state.questions
+    nextQuestion: state.nextQuestion,
+    prevQuestion: state.prevQuestion,
+    questionsStore: state.questionsStore
   }
 }
 

@@ -1,6 +1,9 @@
+// For Each Action, assign a variable as shown.
 export const GET_QUESTIONS          = 'GET_QUESTIONS';
 export const GET_NEXT_QUESTION_PAGE = 'GET_NEXT_QUESTION_PAGE';
+export const GET_PREV_QUESTION_PAGE = 'GET_PREV_QUESTION_PAGE';
 
+// POC get next question.
 export function getNextQuestionPage(){
   return {
     type: 'GET_NEXT_QUESTION',
@@ -8,6 +11,15 @@ export function getNextQuestionPage(){
   }
 }
 
+// POC get prev question.
+export function getPrevQuestionPage(){
+  return {
+    type: 'GET_PREV_QUESTION_PAGE',
+    payLoad: 1
+  }
+}
+
+// POC question store.
 export function getQuestions(){
   return {
     type: 'GET_QUESTIONS',

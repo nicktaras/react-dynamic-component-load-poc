@@ -4,6 +4,7 @@ import reducers from './reducers';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 import history from './history';
 import { createStore, applyMiddleware } from 'redux';
+import { Link } from 'react-router-dom';
 
 import QuestionSync from './QuestionSync';
 
@@ -16,6 +17,7 @@ class App extends Component {
         <Provider store={createStoreWithMiddleware(reducers)}>
         <div>
           <Route exact path="/question/:number" component={QuestionSync} history={history} />
+          <Link to="/question/1">Test</Link>
         </div>
         </Provider>
       </Router>
