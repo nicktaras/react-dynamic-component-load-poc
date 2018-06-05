@@ -1,0 +1,25 @@
+[
+  {
+    "id": 1,
+    "questionText": "How many applicants are there?",
+    "loanDataLocation": "applicants",
+    "options": [{ "id": 0, "value": "Single" }, { "id": 1, "value": "Joint" }, { "id": 2, "value": "More than two" }],
+    "actionType": "isSelected",
+    "component": "Applicants",
+    "analytics": {
+      "title": "Applicants"
+    }
+  },
+  {
+    "id": 2,
+    "title": "Loan Type",
+    "menuTitle": "Loan Type",
+    "questionText": "What is your loan type?",
+    "options": [{ "id": 0, "value": "Refinance" }, { "id": 1, "value": "New Purchase" }],
+    "actionType": "isSelected",
+    "component": "LoanType",
+    "analytics": {
+      "title": "Loan Type"
+    }
+  }
+]

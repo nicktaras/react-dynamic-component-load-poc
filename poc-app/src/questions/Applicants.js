@@ -1,11 +1,10 @@
 // A POC SIMPLE COMPONENT.
-
 import React from 'react';
 
-class QuestionY extends React.Component {
+class Applicants extends React.Component {
 
   state = {
-    value: 'Y'
+    value: 'Applicants'
   }
 
   constructor() {
@@ -26,4 +25,4 @@ class QuestionY extends React.Component {
   }
 
 }
-export default QuestionY;
+export default Applicants;

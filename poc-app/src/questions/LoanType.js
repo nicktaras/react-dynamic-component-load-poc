@@ -1,10 +1,11 @@
 // A POC SIMPLE COMPONENT.
+
 import React from 'react';
 
-class QuestionX extends React.Component {
+class LoanType extends React.Component {
 
   state = {
-    value: 'X'
+    value: 'LoanType'
   }
 
   constructor() {
@@ -25,4 +26,4 @@ class QuestionX extends React.Component {
   }
 
 }
-export default QuestionX;
+export default LoanType;
