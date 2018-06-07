@@ -6,6 +6,8 @@ const defaultState = {
   questionsStore: []
 }
 
+// Async Epic fired when - GET_QUESTIONS action is triggered.
+// this resolves our GET_QUESTIONS_SUCCESSFUL with the data.
 export const getQuestionsStoreEpic = action$ =>
   action$.ofType(GET_QUESTIONS)
     .switchMap(function (action) {

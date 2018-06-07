@@ -34,8 +34,8 @@ class QuestionSync extends Component {
   }
 
   reRenderView() {
-    if (this.props.questionsStore.length){
-      var questionsData = this.getQuestionsArray(this.state.questionIndex, this.props.questionsStore);
+    if (this.state.questionsStore.length){
+      var questionsData = this.getQuestionsArray(this.state.questionIndex, this.state.questionsStore);
       this.setQuestionComponents(questionsData);
     }
   }
@@ -101,12 +101,12 @@ class QuestionSync extends Component {
   // componentDidUpdate()
   // invoked immediately after updating occurs. This method is not called for the initial render.
   componentDidUpdate(prevProps, prevState, snapshot) {
-
     // To stop and infinite loop we must ensure the data recieved is different from the current state
     // then we can re-render the page.
     if (this.props.questionsStore !== this.state.questionsStore) {
-      this.setState({ questionsStore: this.props.questionsStore });
-      this.reRenderView();
+      this.setState({ questionsStore: this.props.questionsStore }, function (){
+        this.reRenderView();
+      });
     }
 
     // navigate to next view.
